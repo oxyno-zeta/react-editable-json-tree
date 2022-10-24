@@ -1,6 +1,6 @@
 # React Editable Json Tree
 
-[![Node.js CI](https://github.com/oxyno-zeta/react-editable-json-tree/actions/workflows/node.js.yml/badge.svg)](https://github.com/oxyno-zeta/react-editable-json-tree/actions/workflows/node.js.yml) [![npm](https://img.shields.io/npm/v/react-editable-json-tree.svg)]() [![Node version](https://img.shields.io/node/v/react-editable-json-tree)](https://nodejs.org) [![React version](https://img.shields.io/npm/dependency-version/react-editable-json-tree/peer/react)](https://reactjs.org/)
+[![Node.js CI](https://github.com/oxyno-zeta/react-editable-json-tree/actions/workflows/node.js.yml/badge.svg)](https://github.com/oxyno-zeta/react-editable-json-tree/actions/workflows/node.js.yml) [![npm](https://img.shields.io/npm/v/react-editable-json-tree.svg)](https://www.npmjs.com/package/react-editable-json-tree) [![Node version](https://img.shields.io/node/v/react-editable-json-tree)](https://nodejs.org) [![React version](https://img.shields.io/npm/dependency-version/react-editable-json-tree/peer/react)](https://reactjs.org/)
 
 ## ⚠ Security advisory
 
