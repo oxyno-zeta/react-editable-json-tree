@@ -10,6 +10,28 @@ import React, { useCallback, useRef, useState } from "react";
 import { JsonTree } from "react-editable-json-tree";
 import { trySetRefAttr } from "../utils/misc";
 
+const styles = {
+  table: {
+    width: "100%",
+  },
+  cell: {
+    verticalAlign: "top",
+  },
+  code: {
+    backgroundColor: "#e0e0e0",
+    border: "1px lightgrey solid",
+  },
+  container: {
+    margin: "0 15px",
+    minWidth: "200px",
+  },
+  customInput: {
+    backgroundColor: "black",
+    color: "yellow",
+    border: "1px solid green",
+  },
+};
+
 const defaultJson = {
   error: new Error("error"),
   func: () => {
@@ -55,26 +77,7 @@ function Body() {
   //endregion
   //region Memos
 
-  const style1 = {
-    width: "100%",
-  };
-  const style2 = {
-    verticalAlign: "top",
-  };
-  const style3 = {
-    backgroundColor: "#e0e0e0",
-    border: "1px lightgrey solid",
-  };
-  const style4 = {
-    margin: "0 15px",
-    minWidth: "200px",
-  };
-  const style5 = {
-    backgroundColor: "black",
-    color: "yellow",
-    border: "1px solid green",
-  };
-  const customInputElement = customInput ? <input style={style5} /> : undefined;
+  const customInputElement = customInput ? <input style={styles.customInput} /> : undefined;
   const minusMenuElement = minusMenu ? (
     <button type="button">Remove</button>
   ) : undefined;
@@ -177,7 +180,7 @@ function Body() {
 
   return (
     <div>
-      <div style={style4}>
+      <div style={styles.container}>
         <span>
           <input
             type="checkbox"
@@ -221,7 +224,7 @@ function Body() {
           Custom minus menu
         </span>
       </div>
-      <table style={style1}>
+      <table style={styles.table}>
         <thead>
           <tr>
             <th>
@@ -250,8 +253,8 @@ function Body() {
         </thead>
         <tbody>
           <tr>
-            <td style={style2}>
-              <div style={style4}>
+            <td style={styles.cell}>
+              <div style={styles.container}>
                 <JsonTree
                   data={json}
                   onFullyUpdate={onFullyUpdate}
@@ -263,18 +266,18 @@ function Body() {
                 />
               </div>
             </td>
-            <td style={style2}>
-              <div style={style4}>
-                <pre style={style3}>{globalUpdateString}</pre>
+            <td style={styles.cell}>
+              <div style={styles.container}>
+                <pre style={styles.code}>{globalUpdateString}</pre>
               </div>
             </td>
-            <td style={style2}>
-              <div style={style4}>
-                <pre style={style3}>{deltaUpdateString}</pre>
+            <td style={styles.cell}>
+              <div style={styles.container}>
+                <pre style={styles.code}>{deltaUpdateString}</pre>
               </div>
             </td>
-            <td style={style2}>
-              <div style={style4}>
+            <td style={styles.cell}>
+              <div style={styles.container}>
                 <textarea ref={textareaRef} rows={15} cols={40} />
                 <div>
                   <button type="button" onClick={handleSubmit}>
