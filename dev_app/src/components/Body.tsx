@@ -37,6 +37,8 @@ type ReadOnlyCallback = (
 ) => boolean;
 
 function Body() {
+  //region State
+
   const [json, setJson] = useState(_.cloneDeep(defaultJson));
   const [deltaUpdateString, setDeltaUpdateString] = useState("{}");
   const [readOnly, setReadOnly] = useState<boolean | ReadOnlyCallback>(false);
@@ -49,11 +51,36 @@ function Body() {
   const [readOnlyBooleanEnable, setReadOnlyBooleanEnable] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const readOnlyBooleanRef = useRef<HTMLInputElement | null>(null);
-  const readOnlyFunctionRef = useRef<HTMLInputElement | null>(null);
-  const readOnlyRef = useRef<HTMLInputElement | null>(null);
-  const customInputRef = useRef<HTMLInputElement | null>(null);
-  const minusMenuRef = useRef<HTMLInputElement | null>(null);
+
+  //endregion
+  //region Memos
+
+  const style1 = {
+    width: "100%",
+  };
+  const style2 = {
+    verticalAlign: "top",
+  };
+  const style3 = {
+    backgroundColor: "#e0e0e0",
+    border: "1px lightgrey solid",
+  };
+  const style4 = {
+    margin: "0 15px",
+    minWidth: "200px",
+  };
+  const style5 = {
+    backgroundColor: "black",
+    color: "yellow",
+    border: "1px solid green",
+  };
+  const customInputElement = customInput ? <input style={style5} /> : undefined;
+  const minusMenuElement = minusMenu ? (
+    <button type="button">Remove</button>
+  ) : undefined;
+
+  //endregion
+  //region Callbacks
 
   const onFullyUpdate = useCallback((newJson: object) => {
     setGlobalUpdateString(JSON.stringify(newJson, null, 4));
@@ -145,31 +172,8 @@ function Body() {
     setDeltaUpdateString("{}");
   }, []);
 
-  // Render
-
-  const style1 = {
-    width: "100%",
-  };
-  const style2 = {
-    verticalAlign: "top",
-  };
-  const style3 = {
-    backgroundColor: "#e0e0e0",
-    border: "1px lightgrey solid",
-  };
-  const style4 = {
-    margin: "0 15px",
-    minWidth: "200px",
-  };
-  const style5 = {
-    backgroundColor: "black",
-    color: "yellow",
-    border: "1px solid green",
-  };
-  const customInputElement = customInput ? <input style={style5} /> : undefined;
-  const minusMenuElement = minusMenu ? (
-    <button type="button">Remove</button>
-  ) : undefined;
+  //endregion
+  //region Render
 
   return (
     <div>
@@ -287,6 +291,8 @@ function Body() {
       </table>
     </div>
   );
+
+  //endregion
 }
 
 export default Body;
