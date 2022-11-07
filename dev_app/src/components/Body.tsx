@@ -34,7 +34,6 @@ const styles = {
 const defaultJson = {
   error: new Error("error"),
   func: () => {
-    // eslint-disable-next-line no-console
     console.log("test");
   },
   text: "text",
