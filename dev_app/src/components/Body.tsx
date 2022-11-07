@@ -48,7 +48,7 @@ const defaultJson = {
     int: 100,
     boolean: true,
   },
-  array: [1, 2, 3, { string: "test" }]
+  array: [1, 2, 3, { string: "test" }],
 };
 
 type ReadOnlyCallback = (
@@ -62,7 +62,9 @@ function Body() {
 
   const [json, setJson] = useState(_.cloneDeep(defaultJson));
   const [deltaUpdateString, setDeltaUpdateString] = useState("{}");
-  const [readOnlyTreeProp, setReadOnlyTreeProp] = useState<boolean | (() => ReadOnlyCallback)>(false);
+  const [readOnlyTreeProp, setReadOnlyTreeProp] = useState<
+    boolean | (() => ReadOnlyCallback)
+  >(false);
   const [globalUpdateString, setGlobalUpdateString] = useState("{}");
 
   const [checkedCustomInput, setCheckedCustomInput] = useState(false);
@@ -76,7 +78,9 @@ function Body() {
   //endregion
   //region Memos
 
-  const customInputElement = checkedCustomInput ? <input style={styles.customInput} /> : undefined;
+  const customInputElement = checkedCustomInput ? (
+    <input style={styles.customInput} />
+  ) : undefined;
   const minusMenuElement = checkedMinusMenu ? (
     <button type="button">Remove</button>
   ) : undefined;
@@ -92,11 +96,14 @@ function Body() {
     setDeltaUpdateString(JSON.stringify(deltaUpdate, null, 4));
   }, []);
 
-  const handleCheck = useCallback((setter: React.Dispatch<React.SetStateAction<boolean>>) => {
-    return (event: ChangeEvent<HTMLInputElement>) => {
-      setter(event.target.checked);
-    };
-  }, []);
+  const handleCheck = useCallback(
+    (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
+      return (event: ChangeEvent<HTMLInputElement>) => {
+        setter(event.target.checked);
+      };
+    },
+    []
+  );
 
   const handleSubmit = useCallback(() => {
     if (!textareaRef.current) return;
@@ -120,27 +127,36 @@ function Body() {
     setJson(_.cloneDeep(defaultJson));
   }, []);
 
-  const handleChangeReadOnly = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setCheckedReadOnly(event.target.checked);
-    if (!event.target.checked) setReadOnlyTreeProp(false);
-  }, []);
+  const handleChangeReadOnly = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setCheckedReadOnly(event.target.checked);
+      if (!event.target.checked) setReadOnlyTreeProp(false);
+    },
+    []
+  );
 
-  const handleChangeReadOnlyBoolean = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setCheckedReadOnlyBoolean(event.target.checked);
-    setReadOnlyTreeProp(event.target.checked);
-  }, []);
+  const handleChangeReadOnlyBoolean = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setCheckedReadOnlyBoolean(event.target.checked);
+      setReadOnlyTreeProp(event.target.checked);
+    },
+    []
+  );
 
-  const handleChangeReadOnlyFunction = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setCheckedReadOnlyFunction(event.target.checked);
-    if (event.target.checked) {
-      setReadOnlyTreeProp(
-        (): ReadOnlyCallback =>
-          (name, value, keyPath) => keyPath[keyPath.length - 1] === "text"
-      );
-    } else {
-      setReadOnlyTreeProp((): ReadOnlyCallback => () => false);
-    }
-  }, []);
+  const handleChangeReadOnlyFunction = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setCheckedReadOnlyFunction(event.target.checked);
+      if (event.target.checked) {
+        setReadOnlyTreeProp(
+          (): ReadOnlyCallback => (name, value, keyPath) =>
+            keyPath[keyPath.length - 1] === "text"
+        );
+      } else {
+        setReadOnlyTreeProp((): ReadOnlyCallback => () => false);
+      }
+    },
+    []
+  );
 
   const handleClearGlobalUpdateString = useCallback(() => {
     setGlobalUpdateString("{}");
@@ -157,10 +173,7 @@ function Body() {
     <div>
       <div style={styles.container}>
         <span>
-          <input
-            type="checkbox"
-            onChange={handleChangeReadOnly}
-          />
+          <input type="checkbox" onChange={handleChangeReadOnly} />
           Read Only
         </span>
         <span>
@@ -187,10 +200,7 @@ function Body() {
           Custom input
         </span>
         <span>
-          <input
-            type="checkbox"
-            onChange={handleCheck(setCheckedMinusMenu)}
-          />
+          <input type="checkbox" onChange={handleCheck(setCheckedMinusMenu)} />
           Custom minus menu
         </span>
       </div>
