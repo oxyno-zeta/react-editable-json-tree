@@ -126,35 +126,54 @@ function Body() {
     setJson(_.cloneDeep(defaultJson));
   }, []);
 
+  const setReadOnlyTreePropWithBoolean = useCallback((newValue: boolean) => {
+    setReadOnlyTreeProp(newValue);
+  }, []);
+
+  const setReadOnlyTreePropWithFunction = useCallback((newValue: boolean) => {
+    if (newValue) {
+      setReadOnlyTreeProp(
+        (): ReadOnlyCallback => (name, value, keyPath) =>
+          keyPath[keyPath.length - 1] === "text"
+      );
+    } else {
+      setReadOnlyTreeProp((): ReadOnlyCallback => () => false);
+    }
+  }, []);
+
   const handleChangeReadOnly = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setCheckedReadOnly(event.target.checked);
-      if (!event.target.checked) setReadOnlyTreeProp(false);
+      if (!event.target.checked) {
+        setReadOnlyTreeProp(false);
+      } else {
+        // Reapply the "child" readonly fields
+        if (checkedReadOnlyBoolean) setReadOnlyTreePropWithBoolean(true);
+        else if (checkedReadOnlyFunction) setReadOnlyTreePropWithFunction(true);
+      }
     },
-    []
+    [
+      checkedReadOnlyBoolean,
+      checkedReadOnlyFunction,
+      setReadOnlyTreePropWithBoolean,
+      setReadOnlyTreePropWithFunction,
+    ]
   );
 
   const handleChangeReadOnlyBoolean = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setCheckedReadOnlyBoolean(event.target.checked);
-      setReadOnlyTreeProp(event.target.checked);
+      setReadOnlyTreePropWithBoolean(event.target.checked);
     },
-    []
+    [setReadOnlyTreePropWithBoolean]
   );
 
   const handleChangeReadOnlyFunction = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setCheckedReadOnlyFunction(event.target.checked);
-      if (event.target.checked) {
-        setReadOnlyTreeProp(
-          (): ReadOnlyCallback => (name, value, keyPath) =>
-            keyPath[keyPath.length - 1] === "text"
-        );
-      } else {
-        setReadOnlyTreeProp((): ReadOnlyCallback => () => false);
-      }
+      setReadOnlyTreePropWithFunction(event.target.checked);
     },
-    []
+    [setReadOnlyTreePropWithFunction]
   );
 
   const handleClearGlobalUpdateString = useCallback(() => {
