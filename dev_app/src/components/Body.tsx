@@ -53,7 +53,7 @@ const defaultJson = {
 type ReadOnlyCallback = (
   name: string,
   value: unknown,
-  keyPath: string
+  keyPath: string[]
 ) => boolean;
 
 function Body() {
