@@ -246,9 +246,9 @@ The library will add an `onClick` handler to the element.
 
 ### inputElement
 
-|     Key      |                 Description                 |                  Type                    | Required |                            Default                             |
-| :----------: | :-----------------------------------------: | :--------------------------------------: | :------: | :------------------------------------------------------------: |
-| inputElement | Custom text input element (to edit a value) | <code>JSX.Element &#124; Function</code> |  False   | `(usage, keyPath, deep, keyName, data, dataType) => <input />` |
+|     Key      |                                                                                                                    Description                                                                                                                    |                  Type                    | Required |                            Default                             |
+| :----------: |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:| :--------------------------------------: | :------: | :------------------------------------------------------------: |
+| inputElement | Custom input element to edit a value which may be of any JSON type. It must be able to have a ref attached to it. If it's a custom element (not a DOM element), you need to use [ref forwarding](https://reactjs.org/docs/forwarding-refs.html).  | <code>JSX.Element &#124; Function</code> |  False   | `(usage, keyPath, deep, keyName, data, dataType) => <input />` |
 
 The library will add a `placeholder`, `ref`, and `defaultValue` prop to the
 element. This element will be focused when possible.
