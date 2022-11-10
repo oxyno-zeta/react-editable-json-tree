@@ -1,3 +1,12 @@
+# 2.3.1
+## Fix
+- `keyPath`, the `string[]` argument in many callback functions, is now frozen, so mistakenly trying to mutate it will throw an error
+- Fixed `dev_app`'s read-only function checkbox throwing an error
+- Cleaned up checkbox logic in `dev_app` (no longer uses unnecessary refs)
+
+## Docs
+- Add info about how refs must be attachable to `inputElement`
+
 # 2.3.0
 ## Feature
 - Support for React 17 and 18

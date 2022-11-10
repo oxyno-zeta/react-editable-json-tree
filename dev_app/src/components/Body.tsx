@@ -5,15 +5,35 @@
  */
 
 import _ from "lodash";
-import React, { useCallback, useRef, useState } from "react";
+import React, { ChangeEvent, useCallback, useRef, useState } from "react";
 // @ts-ignore
 import { JsonTree } from "react-editable-json-tree";
-import { trySetRefAttr } from "../utils/misc";
+
+const styles = {
+  table: {
+    width: "100%",
+  },
+  cell: {
+    verticalAlign: "top",
+  },
+  code: {
+    backgroundColor: "#e0e0e0",
+    border: "1px lightgrey solid",
+  },
+  container: {
+    margin: "0 15px",
+    minWidth: "200px",
+  },
+  customInput: {
+    backgroundColor: "black",
+    color: "yellow",
+    border: "1px solid green",
+  },
+};
 
 const defaultJson = {
   error: new Error("error"),
   func: () => {
-    // eslint-disable-next-line no-console
     console.log("test");
   },
   text: "text",
@@ -33,27 +53,39 @@ const defaultJson = {
 type ReadOnlyCallback = (
   name: string,
   value: unknown,
-  keyPath: string
+  keyPath: string[]
 ) => boolean;
 
 function Body() {
+  //region State
+
   const [json, setJson] = useState(_.cloneDeep(defaultJson));
   const [deltaUpdateString, setDeltaUpdateString] = useState("{}");
-  const [readOnly, setReadOnly] = useState<boolean | ReadOnlyCallback>(false);
+  const [readOnlyTreeProp, setReadOnlyTreeProp] = useState<
+    boolean | (() => ReadOnlyCallback)
+  >(false);
   const [globalUpdateString, setGlobalUpdateString] = useState("{}");
-  const [customInput, setCustomInput] = useState(false);
-  const [minusMenu, setMinusMenu] = useState(false);
 
-  const [readOnlyEnable, setReadOnlyEnable] = useState(false);
-  const [readOnlyFunctionEnable, setReadOnlyFunctionEnable] = useState(false);
-  const [readOnlyBooleanEnable, setReadOnlyBooleanEnable] = useState(false);
+  const [checkedCustomInput, setCheckedCustomInput] = useState(false);
+  const [checkedMinusMenu, setCheckedMinusMenu] = useState(false);
+  const [checkedReadOnly, setCheckedReadOnly] = useState(false);
+  const [checkedReadOnlyFunction, setCheckedReadOnlyFunction] = useState(false);
+  const [checkedReadOnlyBoolean, setCheckedReadOnlyBoolean] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const readOnlyBooleanRef = useRef<HTMLInputElement | null>(null);
-  const readOnlyFunctionRef = useRef<HTMLInputElement | null>(null);
-  const readOnlyRef = useRef<HTMLInputElement | null>(null);
-  const customInputRef = useRef<HTMLInputElement | null>(null);
-  const minusMenuRef = useRef<HTMLInputElement | null>(null);
+
+  //endregion
+  //region Memos
+
+  const customInputElement = checkedCustomInput ? (
+    <input style={styles.customInput} />
+  ) : undefined;
+  const minusMenuElement = checkedMinusMenu ? (
+    <button type="button">Remove</button>
+  ) : undefined;
+
+  //endregion
+  //region Callbacks
 
   const onFullyUpdate = useCallback((newJson: object) => {
     setGlobalUpdateString(JSON.stringify(newJson, null, 4));
@@ -63,13 +95,14 @@ function Body() {
     setDeltaUpdateString(JSON.stringify(deltaUpdate, null, 4));
   }, []);
 
-  const handleChangeMinusMenu = useCallback(() => {
-    setMinusMenu(minusMenuRef.current?.checked ?? false);
-  }, []);
-
-  const handleChangeCustomInput = useCallback(() => {
-    setCustomInput(customInputRef.current?.checked ?? false);
-  }, []);
+  const handleCheck = useCallback(
+    (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
+      return (event: ChangeEvent<HTMLInputElement>) => {
+        setter(event.target.checked);
+      };
+    },
+    []
+  );
 
   const handleSubmit = useCallback(() => {
     if (!textareaRef.current) return;
@@ -93,49 +126,55 @@ function Body() {
     setJson(_.cloneDeep(defaultJson));
   }, []);
 
-  const handleChangeReadOnlyBoolean = useCallback(() => {
-    trySetRefAttr(readOnlyFunctionRef, {
-      disabled: readOnlyBooleanRef.current?.checked ?? false,
-    });
-    setReadOnly(
-      (prevState: any) => readOnlyBooleanRef.current?.checked ?? prevState
-    );
+  const setReadOnlyTreePropWithBoolean = useCallback((newValue: boolean) => {
+    setReadOnlyTreeProp(newValue);
   }, []);
 
-  const handleChangeReadOnlyFunction = useCallback(() => {
-    trySetRefAttr(readOnlyBooleanRef, {
-      disabled: readOnlyFunctionRef.current?.checked ?? false,
-    });
-
-    let result: ReadOnlyCallback;
-    if (readOnlyFunctionRef.current?.checked) {
-      result = (name, value, keyPath) => keyPath[keyPath.length - 1] === "text";
+  const setReadOnlyTreePropWithFunction = useCallback((newValue: boolean) => {
+    if (newValue) {
+      setReadOnlyTreeProp(
+        (): ReadOnlyCallback => (name, value, keyPath) =>
+          keyPath[keyPath.length - 1] === "text"
+      );
     } else {
-      result = () => false;
+      setReadOnlyTreeProp((): ReadOnlyCallback => () => false);
     }
-
-    setReadOnly(result);
   }, []);
 
-  const handleChangeReadOnly = useCallback(() => {
-    const checkbox = readOnlyRef.current;
-    if (!checkbox) return;
-    setReadOnlyEnable(checkbox.checked);
-
-    if (checkbox.checked) {
-      trySetRefAttr(readOnlyBooleanRef, { disabled: false });
-      trySetRefAttr(readOnlyFunctionRef, { disabled: false });
-      if (readOnlyBooleanRef.current?.checked) {
-        handleChangeReadOnlyBoolean();
-      } else if (readOnlyFunctionRef.current?.checked) {
-        handleChangeReadOnlyFunction();
+  const handleChangeReadOnly = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setCheckedReadOnly(event.target.checked);
+      if (!event.target.checked) {
+        setReadOnlyTreeProp(false);
+      } else {
+        // Reapply the "child" readonly fields
+        if (checkedReadOnlyBoolean) setReadOnlyTreePropWithBoolean(true);
+        else if (checkedReadOnlyFunction) setReadOnlyTreePropWithFunction(true);
       }
-    } else {
-      trySetRefAttr(readOnlyBooleanRef, { disabled: true });
-      trySetRefAttr(readOnlyFunctionRef, { disabled: true });
-      setReadOnly(false);
-    }
-  }, []);
+    },
+    [
+      checkedReadOnlyBoolean,
+      checkedReadOnlyFunction,
+      setReadOnlyTreePropWithBoolean,
+      setReadOnlyTreePropWithFunction,
+    ]
+  );
+
+  const handleChangeReadOnlyBoolean = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setCheckedReadOnlyBoolean(event.target.checked);
+      setReadOnlyTreePropWithBoolean(event.target.checked);
+    },
+    [setReadOnlyTreePropWithBoolean]
+  );
+
+  const handleChangeReadOnlyFunction = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setCheckedReadOnlyFunction(event.target.checked);
+      setReadOnlyTreePropWithFunction(event.target.checked);
+    },
+    [setReadOnlyTreePropWithFunction]
+  );
 
   const handleClearGlobalUpdateString = useCallback(() => {
     setGlobalUpdateString("{}");
@@ -145,79 +184,45 @@ function Body() {
     setDeltaUpdateString("{}");
   }, []);
 
-  // Render
-
-  const style1 = {
-    width: "100%",
-  };
-  const style2 = {
-    verticalAlign: "top",
-  };
-  const style3 = {
-    backgroundColor: "#e0e0e0",
-    border: "1px lightgrey solid",
-  };
-  const style4 = {
-    margin: "0 15px",
-    minWidth: "200px",
-  };
-  const style5 = {
-    backgroundColor: "black",
-    color: "yellow",
-    border: "1px solid green",
-  };
-  const customInputElement = customInput ? <input style={style5} /> : undefined;
-  const minusMenuElement = minusMenu ? (
-    <button type="button">Remove</button>
-  ) : undefined;
+  //endregion
+  //region Render
 
   return (
     <div>
-      <div style={style4}>
+      <div style={styles.container}>
         <span>
-          <input
-            type="checkbox"
-            ref={readOnlyRef}
-            onChange={handleChangeReadOnly}
-          />
+          <input type="checkbox" onChange={handleChangeReadOnly} />
           Read Only
         </span>
         <span>
           <input
             type="checkbox"
-            ref={readOnlyBooleanRef}
             onChange={handleChangeReadOnlyBoolean}
-            disabled
+            disabled={!checkedReadOnly || checkedReadOnlyFunction}
           />
           Read Only Boolean
         </span>
         <span>
           <input
             type="checkbox"
-            ref={readOnlyFunctionRef}
             onChange={handleChangeReadOnlyFunction}
-            disabled
+            disabled={!checkedReadOnly || checkedReadOnlyBoolean}
           />
           Read Only Function (read only for all &apos;text&apos; key)
         </span>
         <span>
           <input
             type="checkbox"
-            ref={customInputRef}
-            onChange={handleChangeCustomInput}
+            onChange={handleCheck(setCheckedCustomInput)}
           />
           Custom input
         </span>
         <span>
-          <input
-            type="checkbox"
-            ref={minusMenuRef}
-            onChange={handleChangeMinusMenu}
-          />
+          <input type="checkbox" onChange={handleCheck(setCheckedMinusMenu)} />
           Custom minus menu
         </span>
       </div>
-      <table style={style1}>
+      <table style={styles.table}>
         <thead>
           <tr>
             <th>
@@ -246,31 +251,31 @@ function Body() {
         </thead>
         <tbody>
           <tr>
-            <td style={style2}>
-              <div style={style4}>
+            <td style={styles.cell}>
+              <div style={styles.container}>
                 <JsonTree
                   data={json}
                   onFullyUpdate={onFullyUpdate}
                   onDeltaUpdate={onDeltaUpdate}
-                  readOnly={readOnly}
+                  readOnly={readOnlyTreeProp}
                   inputElement={customInputElement}
                   minusMenuElement={minusMenuElement}
                   logger={console}
                 />
               </div>
             </td>
-            <td style={style2}>
-              <div style={style4}>
-                <pre style={style3}>{globalUpdateString}</pre>
+            <td style={styles.cell}>
+              <div style={styles.container}>
+                <pre style={styles.code}>{globalUpdateString}</pre>
               </div>
             </td>
-            <td style={style2}>
-              <div style={style4}>
-                <pre style={style3}>{deltaUpdateString}</pre>
+            <td style={styles.cell}>
+              <div style={styles.container}>
+                <pre style={styles.code}>{deltaUpdateString}</pre>
               </div>
             </td>
-            <td style={style2}>
-              <div style={style4}>
+            <td style={styles.cell}>
+              <div style={styles.container}>
                 <textarea ref={textareaRef} rows={15} cols={40} />
                 <div>
                   <button type="button" onClick={handleSubmit}>
@@ -287,6 +292,8 @@ function Body() {
       </table>
     </div>
   );
+
+  //endregion
 }
 
 export default Body;

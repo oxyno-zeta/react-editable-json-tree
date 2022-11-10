@@ -56,10 +56,13 @@ const defaultProps = {
 class JsonArray extends Component {
     constructor(props) {
         super(props);
+
         const keyPath = [
             ...props.keyPath,
             props.name,
         ];
+        Object.freeze(keyPath);
+
         this.state = {
             data: props.data,
             name: props.name,

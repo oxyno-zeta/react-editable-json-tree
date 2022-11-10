@@ -50,10 +50,13 @@ const defaultProps = {
 class JsonValue extends Component {
     constructor(props) {
         super(props);
+
         const keyPath = [
             ...props.keyPath,
             props.name,
         ];
+        Object.freeze(keyPath);
+
         this.state = {
             value: props.value,
             name: props.name,

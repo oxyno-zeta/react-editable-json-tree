@@ -56,10 +56,13 @@ const defaultProps = {
 class JsonObject extends Component {
     constructor(props) {
         super(props);
+
         const keyPath = (props.deep === -1) ? [] : [
             ...props.keyPath,
             props.name,
         ];
+        Object.freeze(keyPath);
+
         this.state = {
             name: props.name,
             data: props.data,
